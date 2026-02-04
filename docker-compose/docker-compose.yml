@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: job-scraper-frontend
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - job-scraper-network
+    restart: unless-stopped
+
+networks:
+  job-scraper-network:
+    external: true
