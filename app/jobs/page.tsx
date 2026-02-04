@@ -26,6 +26,7 @@ export default function JobsPage() {
     const [appliedJobIds, setAppliedJobIds] = useState<Set<number>>(new Set());
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [locationQuery, setLocationQuery] = useState('');
     const [scraping, setScraping] = useState(false);
 
     useEffect(() => {
@@ -58,7 +59,7 @@ export default function JobsPage() {
     const handleScrape = async () => {
         setScraping(true);
         try {
-            await jobsApi.scrape();
+            await jobsApi.scrape(searchQuery, locationQuery);
             await loadJobs();
             toast.success('Jobs scraped successfully!');
         } catch (err: any) {
@@ -91,10 +92,13 @@ export default function JobsPage() {
 
     if (!user) return null;
 
-    const filteredJobs = jobs.filter(job =>
-        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredJobs = jobs.filter(job => {
+        const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            job.company.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesLocation = !locationQuery ||
+            (job.location?.toLowerCase().includes(locationQuery.toLowerCase()));
+        return matchesSearch && matchesLocation;
+    });
 
     return (
         <DashboardLayout>
@@ -115,6 +119,15 @@ export default function JobsPage() {
                         leftIcon={<Search className="w-4 h-4" />}
                     />
                 </div>
+                <div className="flex-1">
+                    <Input
+                        type="text"
+                        value={locationQuery}
+                        onChange={(e) => setLocationQuery(e.target.value)}
+                        placeholder="Location (e.g. Bangalore, Remote)..."
+                        leftIcon={<MapPin className="w-4 h-4" />}
+                    />
+                </div>
                 <Button onClick={handleScrape} loading={scraping}>
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Scrape Jobs
@@ -122,7 +135,7 @@ export default function JobsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
@@ -149,19 +162,6 @@ export default function JobsPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Matching</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{filteredJobs.length}</p>
-                            </div>
-                            <div className="w-12 h-12 bg-secondary-100 dark:bg-secondary-900 rounded-lg flex items-center justify-center">
-                                <Search className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Jobs List */}
@@ -173,19 +173,31 @@ export default function JobsPage() {
                 <Card>
                     <CardContent className="py-12 text-center">
                         <Building className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">No jobs found. Try scraping for new jobs!</p>
-                        <Button onClick={handleScrape} loading={scraping}>
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            Scrape Jobs
-                        </Button>
+                        {jobs.length > 0 ? (
+                            <>
+                                <p className="text-gray-600 dark:text-gray-400 mb-2">No jobs match your current search.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">Try clearing your filters to see all {jobs.length} jobs.</p>
+                                <Button onClick={() => { setSearchQuery(''); setLocationQuery(''); }} variant="outline">
+                                    Clear Filters
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-gray-600 dark:text-gray-400 mb-4">No jobs found. Try scraping for new jobs!</p>
+                                <Button onClick={handleScrape} loading={scraping}>
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Scrape Jobs
+                                </Button>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-4">
+                <div className="grid lg:grid-cols-2 gap-4">
                     {filteredJobs.map(job => (
                         <Card key={job.id} className="hover:shadow-medium transition-shadow">
                             <CardContent className="p-6">
-                                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-start gap-4">
                                             <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -213,22 +225,21 @@ export default function JobsPage() {
                                                     )}
                                                     {job.platform && (
                                                         <span className="flex items-center gap-1">
-                                                            <Clock className="w-4 h-4" />
-                                                            via {job.platform}
+                                                            <Badge variant="outline" className="text-[10px] uppercase">{job.platform}</Badge>
                                                         </span>
                                                     )}
                                                 </div>
 
                                                 {job.description && (
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{job.description}</p>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">{job.description}</p>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-row lg:flex-col gap-2 lg:w-32">
+                                    <div className="flex flex-row xl:flex-col gap-2 xl:w-32">
                                         {appliedJobIds.has(job.id) ? (
-                                            <Badge variant="success" className="justify-center py-2">
+                                            <Badge variant="success" className="justify-center py-2 flex-1">
                                                 <CheckCircle className="w-4 h-4 mr-1" />
                                                 Applied
                                             </Badge>
