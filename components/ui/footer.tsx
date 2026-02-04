@@ -11,9 +11,9 @@ export function Footer() {
                     {/* Brand Section */}
                     <div className="space-y-4">
                         <Link href="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                            {/* <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                                 <Search className="w-5 h-5 text-white" />
-                            </div>
+                            </div> */}
                             <span className="text-xl font-bold gradient-text">Job Scraper</span>
                         </Link>
                         <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">

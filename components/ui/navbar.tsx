@@ -32,9 +32,9 @@ export function Navbar() {
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                        {/* <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                             <Search className="w-5 h-5 text-white" />
-                        </div>
+                        </div> */}
                         <span className="text-xl font-bold gradient-text">Job Scraper</span>
                     </Link>
 
