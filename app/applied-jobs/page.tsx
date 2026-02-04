@@ -105,11 +105,11 @@ export default function AppliedJobsPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-4">
+                <div className="grid lg:grid-cols-2 gap-4">
                     {appliedJobs.map(appliedJob => (
                         <Card key={appliedJob.id} className="hover:shadow-medium transition-shadow">
                             <CardContent className="p-6">
-                                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-start gap-4">
                                             <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -138,7 +138,7 @@ export default function AppliedJobsPage() {
                                                     )}
                                                     <span className="flex items-center gap-1">
                                                         <Calendar className="w-4 h-4" />
-                                                        Applied: {formatDate(appliedJob.applied_at)}
+                                                        {formatDate(appliedJob.applied_at)}
                                                     </span>
                                                 </div>
 
@@ -147,7 +147,7 @@ export default function AppliedJobsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-row lg:flex-col gap-2 lg:w-32">
+                                    <div className="flex flex-row xl:flex-col gap-2 xl:w-32">
                                         {appliedJob.job.apply_url && (
                                             <Button
                                                 variant="outline"
